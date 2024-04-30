@@ -11,21 +11,26 @@ interface Film {
 }
 
 const listFilms = gql`
-query ListFilms {
+query ListAllFilms {
   films {
-    id
-    title
-    release_year
-    director
+    directorByDirector {
+      name
+      id
+    }
     image
+    id
+    release_year
+    title
   }
 }
+
 `
 export default async function Home() {
 const client = getClient();
 
 const { data } = await client.query({
   query: listFilms,
+  fetchPolicy: 'no-cache',
   },
 );
 

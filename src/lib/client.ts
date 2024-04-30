@@ -9,7 +9,7 @@ export const { getClient } = registerApolloClient(() => {
     });
     
   return new ApolloClient({
-    cache: new InMemoryCache(),
+    cache: new InMemoryCache({ resultCaching: false}),
     link: authMiddleware.concat(link),
   });
 });
