@@ -1,9 +1,7 @@
-"use client"
-
-import Image from "next/image";
-import { useRequest } from '@/hooks/use-request';
-import { gql } from 'graphql-request';
-import { useEffect, useState } from "react";
+import { getClient } from '@/lib/client';
+import { gql } from '@apollo/client';
+import Image from 'next/image';
+import * as React from 'react';
 
 interface Film {
   id: string;
@@ -12,34 +10,43 @@ interface Film {
   director: string;
 }
 
-export default function Home() {
-  const document = gql`
-  query GetFilms {
-    films {
-      id
-      title
-      release_year
-      director
-    }
+const listFilms = gql`
+query ListFilms {
+  films {
+    id
+    title
+    release_year
+    director
+    image
+  }
 }
 `
+export default async function Home() {
+const client = getClient();
 
-const { data } = useRequest<Film[]>(document)
+const { data } = await client.query({
+  query: listFilms,
+  },
+);
 
 
 
+console.log(data.films[0].image)
   return (
     <div>
+
       <h1>Star Wars Films</h1>
       <ul>
-        {data?.map((film: any) => (
+        {data.films.map((film: any) => (
           <li key={film.id}>
             <h2>{film.title}</h2>
             <p>Director: {film.director}</p>
             <p>Release Year: {film.release_year}</p>
+            <Image src={film.image} alt='poster' width={631} height={420} />
           </li>
         ))}
       </ul>
     </div>
   );
 }
+
