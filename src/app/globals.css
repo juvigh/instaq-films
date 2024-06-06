@@ -36,3 +36,9 @@ body {
     text-wrap: balance;
   }
 }
+
+.char {
+  transform: translateY(100px);
+  transition: .5s;
+  opacity: 0;
+}

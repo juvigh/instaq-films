@@ -1,112 +1,55 @@
-"use client";
+import { getClient } from '@/lib/client'
+import { gql } from '@apollo/client'
+import * as React from 'react'
 
-import React, { useEffect } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Power2 } from "gsap";
-import { useGSAP } from "@gsap/react";
-import { Card } from "@/components/card/card.component";
+import { FilmCard } from './components/film-card'
+import { Title } from './components/title'
 
-gsap.registerPlugin(ScrollTrigger);
+export type Film = {
+  id: string
+  title: string
+  image: string
+  release_year: string
+  director: string
+}
 
-const filmes = [
-  {
-    id: "1",
-    title: "Film 1",
-    image:
-      "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhbUHbAPGUGCvh8d__x89Q37eZfxcU0lFmUZvzjxQaCNMRXbJfWargDWj4d7n3AmfVoiH-C-GzSe2CDBneLtRmFjraqTI8jHDbw6DtjFYp3zQkuNnSMCJ0kM_qX75w1c1wfsDhr-PTVTmQ/s1920/ash-pokemon-jornadas.jpg",
-    releaseYear: "2020",
-    director: "Director 1",
-  },
-  {
-    id: "2",
-    title: "Film 2",
-    image:
-      "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhbUHbAPGUGCvh8d__x89Q37eZfxcU0lFmUZvzjxQaCNMRXbJfWargDWj4d7n3AmfVoiH-C-GzSe2CDBneLtRmFjraqTI8jHDbw6DtjFYp3zQkuNnSMCJ0kM_qX75w1c1wfsDhr-PTVTmQ/s1920/ash-pokemon-jornadas.jpg",
-    releaseYear: "2019",
-    director: "Director 2",
-  },
-  {
-    id: "3",
-    title: "Film 3",
-    image:
-      "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhbUHbAPGUGCvh8d__x89Q37eZfxcU0lFmUZvzjxQaCNMRXbJfWargDWj4d7n3AmfVoiH-C-GzSe2CDBneLtRmFjraqTI8jHDbw6DtjFYp3zQkuNnSMCJ0kM_qX75w1c1wfsDhr-PTVTmQ/s1920/ash-pokemon-jornadas.jpg",
-    releaseYear: "2019",
-    director: "Director 2",
-  },
-  {
-    id: "4",
-    title: "Film 4",
-    image:
-      "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhbUHbAPGUGCvh8d__x89Q37eZfxcU0lFmUZvzjxQaCNMRXbJfWargDWj4d7n3AmfVoiH-C-GzSe2CDBneLtRmFjraqTI8jHDbw6DtjFYp3zQkuNnSMCJ0kM_qX75w1c1wfsDhr-PTVTmQ/s1920/ash-pokemon-jornadas.jpg",
-    releaseYear: "2019",
-    director: "Director 2",
-  },
-  {
-    id: "5",
-    title: "Film 5",
-    image:
-      "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhbUHbAPGUGCvh8d__x89Q37eZfxcU0lFmUZvzjxQaCNMRXbJfWargDWj4d7n3AmfVoiH-C-GzSe2CDBneLtRmFjraqTI8jHDbw6DtjFYp3zQkuNnSMCJ0kM_qX75w1c1wfsDhr-PTVTmQ/s1920/ash-pokemon-jornadas.jpg",
-    releaseYear: "2019",
-    director: "Director 2",
-  },
-  {
-    id: "6",
-    title: "Film 6",
-    image:
-      "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhbUHbAPGUGCvh8d__x89Q37eZfxcU0lFmUZvzjxQaCNMRXbJfWargDWj4d7n3AmfVoiH-C-GzSe2CDBneLtRmFjraqTI8jHDbw6DtjFYp3zQkuNnSMCJ0kM_qX75w1c1wfsDhr-PTVTmQ/s1920/ash-pokemon-jornadas.jpg",
-    releaseYear: "2019",
-    director: "Director 2",
-  },
-];
-
-const Home = () => {
-  useEffect(() => {
-    const cards = filmes
-      .map((film) => document.querySelector(`#card-${film.id}`))
-      .filter(Boolean);
-
-    const timeline = gsap.timeline({
-      scrollTrigger: {
-        trigger: "#films-section",
-        start: "top 10%",
-        end: "bottom bottom",
-        toggleActions: "play none none none",
-        // scrub: 1.5,
-        markers: true,
-      },
-    });
-
-    timeline.fromTo(
-      cards,
-      { y: 150, opacity: 0 },
-      {
-        y: 0,
-        opacity: 1,
-        ease: Power2.easeInOut,
-        duration: 0.4,
-        stagger: 0.15,
+const listFilms = gql`
+  query ListAllFilms {
+    films {
+      directorByDirector {
+        name
+        id
       }
-    );
-  }, []);
+      image
+      id
+      release_year
+      title
+    }
+  }
+`
+
+export default async function Home() {
+  const client = getClient()
+
+  const { data } = await client.query({
+    query: listFilms,
+    fetchPolicy: 'no-cache',
+  })
 
   return (
-    <div className="bg-white min-h-screen px-[300px] pt-[100px] pb-[200px]">
-      <div className="pb-[200x]"></div>
-      <div id="films-section" className="flex flex-wrap justify-center">
-        {filmes.map((film) => (
-          <Card
-            key={film.id}
-            id={film.id}
-            title={film.title}
-            image={film.image}
-            releaseYear={film.releaseYear}
-            director={film.director}
-          />
-        ))}
+    <main className="bg-black text-white relative w-screen h-screen overflow-hidden">
+      <div className="text-center absolute top-0 w-full">
+        <Title />
       </div>
-    </div>
-  );
-};
 
-export default Home;
+      <div className="relative w-screen h-screen overflow-hidden">
+        <div
+          className="absolute top-[100px] w-screen h-screen overflow-hidden slider"
+          style={{ perspective: '350px', perspectiveOrigin: '50% 100%' }}
+        >
+          {data?.films?.map((film: any) => <FilmCard key={film.id} {...film} />)}
+        </div>
+      </div>
+    </main>
+  )
+}
